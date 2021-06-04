@@ -1,0 +1,102 @@
+I. Construcción de la Tabla LALR
+
+Entrada: Gramática Libre de Contexto (G)
+
+	S->CC
+	C->cC
+	C->d
+
+Salida: Tabla LALR		Nota : tiene los mismos renglones que una LR(0)
+	
+	
+Paso 1. Extender la gramática.
+Paso 2. Calcular cerradura ( {[S'->.S,$]} )      << Estado/subconjunto inicial.
+Paso 3. Mover/Cerradura para calcular los demás subconjuntos LR(1).
+-----
+Kernels de los subconjunto LR(1):
+
+|[S'->.S,$]|, 			(K1)
+|[S'->S.,$]| 			(K2)
+|[S->C.C,$]|			(K3)
+|[C->c.C,c], [C->c.C,d]| 	(K4)
+|[C->d.,c], [C->d.,d]		(K5)
+|[S->CC.,$]|			(K6)
+|[C->c.C,$]|     		(K7)
+|[C->d.,$]|			(K8)
+|[C->cC.,c],[C->cC.,d]|		(K9)
+|[C->cC.,$]|			(K10)
+-----------------------------------------------------
+Paso 4. Identificar los subconjuntos "fusionables".
+
+	Comparten el elemento LR(0)  	(Produción  + punto indicador)
+
+
+|[S'->.S,$]|, 			(K1)
+|[S'->S.,$]| 			(K2)
+|[S->C.C,$]|			(K3)
+|[S->CC.,$]|			(K6)
+
+|[C->c.C,c], [C->c.C,d]| 	(K4)		K4 y K7 se van a fusionar!
+|[C->c.C,$]|     		(K7)
+
+|[C->d.,c], [C->d.,d]		(K5)		K5 y K8 se van a fusionar!
+|[C->d.,$]|			(K8)
+
+
+|[C->cC.,c],[C->cC.,d]|		(K9)		K9 y K10 se van a fusionar!
+|[C->cC.,$]|			(K10)
+
+Nuevos estados:			[4,7]  [5,8] [9,10]
+	
+
+Paso 5. Construir la tabla LALR.
+
+S->CC (1)
+C->cC (2)
+C->d  (3)
+	      Acción		Ir_A / Mover
+	c	d	$	S	C
+1	d[4,7]	d[5,8]		2	3
+2			acc
+3	d[4,7]	d[5,8]			6
+[4,7]	d[4,7]	d[5,8]			[9,10]
+[5,8]	r3	r3	r3
+6			r1
+[9,10]	r2	r2      r2
+-------------------------------------------------
+II. Análisis LALR
+
+Entrada: Tabla LALR y cadena de entrada
+
+	ccdccd
+
+Salida: SI/NO pertenece al lenguaje generado por la gramática G.
+
+Paso 1. Iniciar entrada y pila
+Paso 2. Consultar reiteradamente la tabla LALR y aplicar las acciones.
+Paso 3. Concluir (Aceptada, Rechazada, Conflicto de fusión ó Entradas Múltiples).
+
+Entrada		Pila			Acciones		Anuncios
+ccdccd$		1			1,c = d[4,7]
+ cdccd$		[4,7] 1			[4,7],c = d[4,7]
+  dccd$		[4,7] [4,7] 1  		[4,7],d = d[5,8]
+   ccd$		[5,8] [4,7] [4,7] 1	[5,8],c = r3		(3) C->d
+  		[9,10] [4,7] [4,7] 1	[9,10],c = r2		(2) C->cC
+		       [9,10] [4,7] 1   [9,10],c = r2		(2) C->cC
+    cd$			          3 1   3,c = d[4,7]
+			    [4,7] 3 1   [4,7],c = d[4,7]
+     d$		      [4,7] [4,7] 3 1  	[4,7],d = d[5,8]
+      $		[5,8] [4,7] [4,7] 3 1	[5,8],$ = r3		(3) C->d
+		[9,10] [4,7] [4,7] 3 1  [9,10],$ = r2		(2) C->cC
+  	        [9,10] [4,7] 3 1  	[9,10],$ = r2		(2) C->cC
+			    6 3 1	6,$ = r1		(1) S->CC
+			      2 1	2,$ = ACEPTAR
+
+	Por lo tanto, ccdccd SI pertenece a L(G).
+
+	Demostración: 
+		S-> (1)... (2)... (2) (3) (2) (2)... (3) -> ccdccd
+
+
+
+			

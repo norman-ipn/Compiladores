@@ -1,0 +1,19 @@
+I. Construcción de la Tabla LALR
+
+Entrada: Gramática Libre de Contexto (G)
+Salida: Tabla LALR
+
+Paso 1. Extender la gramática.
+Paso 2. Calcular cerradura ( {[S'->.S,$]} )      << Estado/subconjunto inicial.
+Paso 3. Mover/Cerradura para calcular los demás subconjuntos LR(1).
+Paso 4. Identificar los subconjuntos "fusionables".
+Paso 5. Construir la tabla LALR(1).
+
+II. Análisis LALR
+
+Entrada: Tabla LALR y cadena de entrada
+Salida: SI/NO pertenece al lenguaje generado por la gramática G.
+
+Paso 1. Iniciar entrada y pila
+Paso 2. Consultar reiteradamente la tabla LALR y aplicar las acciones.
+Paso 3. Concluir (Aceptada, Rechazada, Conflicto ó Entradas Múltiples).
